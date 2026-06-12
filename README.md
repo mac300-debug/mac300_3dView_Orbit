@@ -3,7 +3,7 @@
 # Mac300 Viewport Orbit
 
 [![Blender Version](https://img.shields.io/badge/Blender-5.1.2-orange.svg?style=flat-edge&logo=blender)](https://www.blender.org)
-[![Addon Version](https://img.shields.io/badge/Version-2.2.0-blue.svg?style=flat-edge)](https://github.com)
+[![Addon Version](https://img.shields.io/badge/Version-2.2.0-blue.svg?style=flat-edge)](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.2.0)
 [![License](https://img.shields.io/badge/License-GPL--3.0-green.svg?style=flat-edge)](LICENSE.txt)
 [![Author](https://img.shields.io/badge/Author-MAC300-purple.svg?style=flat-edge)](https://www.mac300.pl)
 
@@ -27,7 +27,7 @@
 
 To install **Mac300 Viewport Orbit** in Blender:
 
-1. **Download the Release ZIP:** Navigate to the [Releases](https://github.com) page and download `mac300_3dView_Orbit.zip`.
+1. **Download the Release ZIP:** Navigate to the [Releases](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.2.0) page and download `mac300_3dView_Orbit.zip`.
 2. **Open Blender Preferences:** Go to `Edit` ➔ `Preferences` ➔ `Get Extensions` (or `Add-ons` depending on Blender version).
 3. **Install from File:** Click the dropdown menu at the top right of the Preferences window, select **Install from Disk...**, choose the downloaded `.zip` file, and click **Install**.
 4. **Enable the Add-on:** Check the box next to `Mac300_Viewport_Orbit` if it isn't enabled automatically.
