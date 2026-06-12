@@ -99,3 +99,4 @@ To record stunning, professional videos of your models using this plugin:
 2. **Viewport Shading:** Set your viewport shading to **Rendered** or **Material Preview** for high-quality visuals.
 3. **Smooth Sweeps:** Set your **Blend Time** between `1.5` and `3.0` seconds to create elegant, slow sweeps when the auto-framer triggers or the playlist changes direction.
 4. **Slow Rotation:** Keep **Master Speed** low (e.g., `0.01` to `0.02`) for a premium showcase feel. Negative speeds are great for reversing direction when switching axes.
+5. **Separate Window Recording:** You can drag out a separate window from Blender (hold `Shift` while dragging a window corner, or go to `Window` ➔ `New Window` and set the area to a `3D Viewport`). Start the Orbit Director *in that window*. It will rotate independently, allowing you to record the clean separate viewport while you continue editing or working in your main Blender workspace.
