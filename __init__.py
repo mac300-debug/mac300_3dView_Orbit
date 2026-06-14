@@ -28,7 +28,7 @@ import bpy.utils.previews
 # Global State Trackers
 # =========================================================================
 _orbit_timer_registered = False
-_target_screen_name = ""
+_target_window_ptr = 0
 preview_collections = {}
 
 # Timing & Director variables
@@ -62,12 +62,11 @@ def get_axis_vector(axis_char):
 
 def trigger_auto_frame(scene):
     """The 'Phantom Operator' trick to calculate zoom coordinates"""
-    global _target_screen_name
     global _is_framing, _frame_start_loc, _frame_target_loc
     global _frame_start_dist, _frame_target_dist, _frame_anim_start_time
     
     for window in bpy.context.window_manager.windows:
-        if window.screen.name == _target_screen_name:
+        if window.as_pointer() == _target_window_ptr and window.screen:
             for area in window.screen.areas:
                 if area.type == 'VIEW_3D':
                     for region in area.regions:
@@ -209,29 +208,29 @@ def viewport_orbit_timer_callback():
     # ==========================================
     # 5. APPLY ALL TRANSFORMATIONS
     # ==========================================
-    target_screen = bpy.data.screens.get(_target_screen_name)
-    if target_screen:
-        for area in target_screen.areas:
-            if area.type == 'VIEW_3D':
-                for space in area.spaces:
-                    if space.type == 'VIEW_3D':
-                        rv3d = space.region_3d
-                        if rv3d:
-                            # Apply Continuous Rotation
-                            rot = mathutils.Quaternion(_current_axis, scene.viewport_orbit_speed)
-                            rv3d.view_rotation = rot @ rv3d.view_rotation
-                            
-                            # Apply Smooth Camera Zoom/Pan
-                            if _is_framing:
-                                if t_frame >= 1.0:
-                                    rv3d.view_location = _frame_target_loc
-                                    rv3d.view_distance = _frame_target_dist
-                                    _is_framing = False
-                                else:
-                                    rv3d.view_location = _frame_start_loc.lerp(_frame_target_loc, ease_f)
-                                    rv3d.view_distance = _frame_start_dist + (_frame_target_dist - _frame_start_dist) * ease_f
+    for window in bpy.context.window_manager.windows:
+        if window.as_pointer() == _target_window_ptr and window.screen:
+            for area in window.screen.areas:
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces:
+                        if space.type == 'VIEW_3D':
+                            rv3d = space.region_3d
+                            if rv3d:
+                                # Apply Continuous Rotation
+                                rot = mathutils.Quaternion(_current_axis, scene.viewport_orbit_speed)
+                                rv3d.view_rotation = rot @ rv3d.view_rotation
+                                
+                                # Apply Smooth Camera Zoom/Pan
+                                if _is_framing:
+                                    if t_frame >= 1.0:
+                                        rv3d.view_location = _frame_target_loc
+                                        rv3d.view_distance = _frame_target_dist
+                                        _is_framing = False
+                                    else:
+                                        rv3d.view_location = _frame_start_loc.lerp(_frame_target_loc, ease_f)
+                                        rv3d.view_distance = _frame_start_dist + (_frame_target_dist - _frame_start_dist) * ease_f
 
-                area.tag_redraw()
+                    area.tag_redraw()
             
     return 0.02 
 
@@ -284,11 +283,11 @@ class VIEWPORT_ORBIT_OT_toggle(bpy.types.Operator):
         scene.viewport_orbit_running = not scene.viewport_orbit_running
         
         if scene.viewport_orbit_running:
-            global _orbit_timer_registered, _target_screen_name
+            global _orbit_timer_registered, _target_window_ptr
             global _phase_start_time, _playlist_index, _frame_last_time, _phase_duration
             global _current_axis, _target_axis
             
-            _target_screen_name = context.screen.name 
+            _target_window_ptr = context.window.as_pointer()
             _phase_start_time = time.time()
             _frame_last_time = time.time()
             _playlist_index = 0

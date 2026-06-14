@@ -13,6 +13,7 @@ import mathutils
 
 # Global tracker to prevent multiple timers from running simultaneously
 _orbit_timer_registered = False
+_target_window_ptr = 0
 
 def viewport_orbit_timer_callback():
     """Background timer to smoothly rotate the viewport region_3d"""
@@ -35,16 +36,18 @@ def viewport_orbit_timer_callback():
         axis = (0.0, 1.0, 0.0)
         
     # Rotate View3D spaces
-    for area in bpy.context.screen.areas:
-        if area.type == 'VIEW_3D':
-            for space in area.spaces:
-                if space.type == 'VIEW_3D':
-                    rv3d = space.region_3d
-                    if rv3d:
-                        # Apply quaternion rotation
-                        rot = mathutils.Quaternion(axis, speed)
-                        rv3d.view_rotation = rot @ rv3d.view_rotation
-            area.tag_redraw()
+    for window in bpy.context.window_manager.windows:
+        if window.as_pointer() == _target_window_ptr and window.screen:
+            for area in window.screen.areas:
+                if area.type == 'VIEW_3D':
+                    for space in area.spaces:
+                        if space.type == 'VIEW_3D':
+                            rv3d = space.region_3d
+                            if rv3d:
+                                # Apply quaternion rotation
+                                rot = mathutils.Quaternion(axis, speed)
+                                rv3d.view_rotation = rot @ rv3d.view_rotation
+                    area.tag_redraw()
             
     # Run every 20ms (approx 50 fps) for smooth recording
     return 0.02 
@@ -65,7 +68,8 @@ class VIEWPORT_ORBIT_OT_toggle(bpy.types.Operator):
         scene.viewport_orbit_running = not scene.viewport_orbit_running
         
         if scene.viewport_orbit_running:
-            global _orbit_timer_registered
+            global _orbit_timer_registered, _target_window_ptr
+            _target_window_ptr = context.window.as_pointer()
             if not _orbit_timer_registered:
                 _orbit_timer_registered = True
                 bpy.app.timers.register(viewport_orbit_timer_callback)
