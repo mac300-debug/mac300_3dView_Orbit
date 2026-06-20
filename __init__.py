@@ -23,6 +23,7 @@ import mathutils
 import time
 import random
 import bpy.utils.previews
+import math
 
 # =========================================================================
 # Global State Trackers
@@ -30,6 +31,10 @@ import bpy.utils.previews
 _orbit_timer_registered = False
 _target_window_ptr = 0
 preview_collections = {}
+
+# Oscillation variables
+_oscillation_phase = 0.0
+_last_oscillation_angle = 0.0
 
 # Timing & Director variables
 _phase_start_time = 0.0
@@ -140,6 +145,7 @@ def viewport_orbit_timer_callback():
     global _phase_start_time, _phase_duration, _playlist_index, _frame_last_time
     global _current_axis, _target_axis, _previous_axis, _is_transitioning, _transition_start_time
     global _is_framing, _frame_start_loc, _frame_target_loc, _frame_start_dist, _frame_target_dist, _frame_anim_start_time
+    global _oscillation_phase, _last_oscillation_angle
     
     now = time.time()
     elapsed = now - _phase_start_time
@@ -216,8 +222,22 @@ def viewport_orbit_timer_callback():
                         if space.type == 'VIEW_3D':
                             rv3d = space.region_3d
                             if rv3d:
-                                # Apply Continuous Rotation
-                                rot = mathutils.Quaternion(_current_axis, scene.viewport_orbit_speed)
+                                # Calculate rotation angle
+                                if scene.orbit_oscillate:
+                                    max_angle = math.radians(scene.orbit_oscillate_angle)
+                                    if max_angle > 0.0001:
+                                        w = scene.viewport_orbit_speed / max_angle
+                                        _oscillation_phase += w
+                                        current_angle = math.sin(_oscillation_phase) * max_angle
+                                        delta_angle = current_angle - _last_oscillation_angle
+                                        _last_oscillation_angle = current_angle
+                                    else:
+                                        delta_angle = 0.0
+                                else:
+                                    delta_angle = scene.viewport_orbit_speed
+                                    
+                                # Apply Rotation
+                                rot = mathutils.Quaternion(_current_axis, delta_angle)
                                 rv3d.view_rotation = rot @ rv3d.view_rotation
                                 
                                 # Apply Smooth Camera Zoom/Pan
@@ -286,12 +306,15 @@ class VIEWPORT_ORBIT_OT_toggle(bpy.types.Operator):
             global _orbit_timer_registered, _target_window_ptr
             global _phase_start_time, _playlist_index, _frame_last_time, _phase_duration
             global _current_axis, _target_axis
+            global _oscillation_phase, _last_oscillation_angle
             
             _target_window_ptr = context.window.as_pointer()
             _phase_start_time = time.time()
             _frame_last_time = time.time()
             _playlist_index = 0
             _phase_duration = random.uniform(scene.orbit_random_min, scene.orbit_random_max)
+            _oscillation_phase = 0.0
+            _last_oscillation_angle = 0.0
             
             # Reset axes based on starting mode
             start_axis_char = 'Z'
@@ -342,6 +365,13 @@ class VIEWPORT_ORBIT_PT_panel(bpy.types.Panel):
 
         layout.separator()
         layout.prop(scene, "viewport_orbit_speed", text="Master Speed")
+        
+        row = layout.box().row()
+        row.prop(scene, "orbit_oscillate", text="Oscillate")
+        if scene.orbit_oscillate:
+            row.prop(scene, "orbit_oscillate_angle", text="Angle")
+
+        layout.separator()
         layout.prop(scene, "orbit_transition_time", text="Blend Time (s)", icon='ANIM')
         
         layout.separator()
@@ -392,6 +422,11 @@ classes = (
     VIEWPORT_ORBIT_PT_panel,
 )
 
+def update_oscillate(self, context):
+    global _oscillation_phase, _last_oscillation_angle
+    _oscillation_phase = 0.0
+    _last_oscillation_angle = 0.0
+
 def register():
     # Initialize and load preview icons/banners
     pcoll = bpy.utils.previews.new()
@@ -407,6 +442,20 @@ def register():
         
     bpy.types.Scene.viewport_orbit_running = bpy.props.BoolProperty(default=False)
     bpy.types.Scene.viewport_orbit_speed = bpy.props.FloatProperty(default=0.015, min=-0.5, max=0.5, step=0.1, precision=4)
+    
+    bpy.types.Scene.orbit_oscillate = bpy.props.BoolProperty(
+        name="Oscillate",
+        description="Go back and forth instead of a full rotation",
+        default=False,
+        update=update_oscillate
+    )
+    bpy.types.Scene.orbit_oscillate_angle = bpy.props.FloatProperty(
+        name="Oscillation Angle",
+        description="Maximum angle to rotate from the center point (in degrees)",
+        default=45.0,
+        min=1.0,
+        max=360.0
+    )
     
     # Shared blend time for both rotation curves and auto-framing movements
     bpy.types.Scene.orbit_transition_time = bpy.props.FloatProperty(
@@ -466,7 +515,8 @@ def unregister():
         "viewport_orbit_running", "viewport_orbit_speed", "orbit_transition_time", "orbit_mode", 
         "viewport_orbit_axis", "orbit_playlist", "orbit_playlist_index", 
         "orbit_random_min", "orbit_random_max", "orbit_auto_frame", 
-        "orbit_frame_interval", "orbit_frame_selected_chance", "orbit_frame_zoom_factor"
+        "orbit_frame_interval", "orbit_frame_selected_chance", "orbit_frame_zoom_factor",
+        "orbit_oscillate", "orbit_oscillate_angle"
     ]
     for p in props:
         if hasattr(bpy.types.Scene, p):
