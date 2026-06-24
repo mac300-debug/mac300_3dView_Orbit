@@ -1,6 +1,6 @@
 # Mac300 Viewport Orbit - Detailed User Manual
 
-This manual provides an in-depth explanation of every setting, UI panel control, and advanced feature available in the **Mac300 Viewport Orbit** add-on (v2.2.0).
+This manual provides an in-depth explanation of every setting, UI panel control, and advanced feature available in the **Mac300 Viewport Orbit** add-on (v2.3.0).
 
 ---
 
@@ -23,6 +23,8 @@ Once installed and enabled, the add-on UI is located in the **3D Viewport Sideba
 - **Master Speed:**
   - Controls the rotation speed per tick. 
   - **Tip:** You can set negative values (e.g. `-0.015`) to reverse the rotation direction.
+- **Oscillate & Angle:**
+  - When enabled, the camera will rotate back and forth (like a pendulum) within the specified **Angle** instead of doing a full continuous rotation.
 - **Blend Time (s):**
   - Defines the duration in seconds for smooth interpolation. This setting is shared across two animation events:
     1. **Axis transitions:** The duration it takes to smoothly sweep from one rotation axis (e.g. Z) into another (e.g. X).
@@ -56,16 +58,21 @@ You can choose from three distinct director modes to drive the camera:
 
 Auto-Framing automatically centers and zooms the viewport camera on your workspace objects, preventing your model from drifting out of view during long orbits.
 
-- **Auto-Framing (Checkbox):** Toggles the feature on and off. (Note: Only runs when Blender is in **Object Mode**).
-- **Trigger Every (s):** The interval in seconds between auto-framing events.
-- **% Chance to Focus Selected:**
-  - A slider from `0%` to `100%`.
-  - Determines the probability of focusing on the selected object(s) vs. focusing on the entire scene.
-  - *Example:* If set to `70%`, there is a 70% chance it will zoom in on your selected mesh, and a 30% chance it will zoom out to frame all objects in the scene.
-- **Framing Zoom:**
-  - The zoom multiplier for the camera.
-  - Lower values (e.g., `0.8`) frame the target closer.
-  - Higher values (e.g., `1.5`) leave more margin around the object.
+- **Auto-Framing (Checkbox):** Toggles the feature on and off.
+- **Trigger Mode:** Choose how the framing event is triggered:
+  - **Time Interval:** Frames automatically based on a strict timer (**Trigger Every (s)**).
+  - **On Mesh Edit / Action:** Frames reactively whenever the scene updates, like placing a vertex or moving an object, with a minimum cooldown timer (**Action Throttle (s)**).
+- **Target Mode:** 
+  - **Frame Selection:** Automatically zooms in on selected faces/vertices or frames the entire scene.
+    - **Align to Face Normal:** Automatically adjusts the camera angle to look straight at the average normal of the selected faces.
+    - **Up Axis & Tilt Angle:** When aligning to normals, lock the camera's up direction to a specific world axis, and add a tilt angle to create a cone-like orbit.
+    - **Center Object:** Designate a specific object to serve as the focus point when framing the entire scene.
+    - **% Chance to Focus Selected:** Determines the probability (e.g., 70%) of zooming in on the selection vs zooming out to frame everything.
+    - **Zoom (Selected) & Zoom (All):** Separate multipliers for how tight the camera zooms in on selections versus zooming out for the whole scene. Lower values get closer.
+  - **Sync to Source Viewport:** Links cameras across viewports.
+    - Set one viewport as the "Source" by clicking **Set as Source Viewport**.
+    - When auto-framing triggers, the orbiting viewport will seamlessly copy the exact location and look angle of the source viewport.
+    - **Sync Source Look Angle:** Copies the exact rotation of the source camera, with an optional **Tilt Angle** offset.
 
 > [!NOTE]
 > **Under the Hood - The Phantom Operator Trick:**
@@ -75,19 +82,6 @@ Auto-Framing automatically centers and zooms the viewport camera on your workspa
 > 3. It grabs the new coordinates Blender calculated.
 > 4. It immediately restores the viewport to its original coordinates before the screen redraws.
 > 5. It uses a mathematical `lerp` (linear interpolation) with ease-in/ease-out curves to glide the camera to the target coordinates over your specified **Blend Time**.
-
----
-
-## ⚡ Standalone Script Mode
-
-If you do not want to install the full add-on package, we have included a lightweight script: `viewport_orbit_standalone.py`.
-
-### How to use it:
-1. Open the **Text Editor** area in Blender.
-2. Click **Open** and select `viewport_orbit_standalone.py`.
-3. Click the **Run Script** (Play) button in the Text Editor header.
-4. Open the `View3D` sidebar (`N`) ➔ **Orbit** tab ➔ **Viewport Orbit** panel.
-5. This standalone version offers simple X, Y, or Z rotation without playlist sequencing or auto-framing.
 
 ---
 

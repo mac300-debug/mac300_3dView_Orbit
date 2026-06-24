@@ -3,7 +3,7 @@
 # Mac300 Viewport Orbit
 
 [![Blender Version](https://img.shields.io/badge/Blender-5.1.2-orange.svg?style=flat-edge&logo=blender)](https://www.blender.org)
-[![Addon Version](https://img.shields.io/badge/Version-2.2.0-blue.svg?style=flat-edge)](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.2.0)
+[![Addon Version](https://img.shields.io/badge/Version-2.3.0-blue.svg?style=flat-edge)](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.3.0)
 [![License](https://img.shields.io/badge/License-GPL--3.0-green.svg?style=flat-edge)](LICENSE.txt)
 [![Author](https://img.shields.io/badge/Author-MAC300-purple.svg?style=flat-edge)](https://www.mac300.pl)
 
@@ -18,8 +18,10 @@
   - **Static:** Continuous, controlled orbiting around the X, Y, or Z axis.
   - **Playlist:** Create a custom sequence of axes and durations (e.g. X for 5s ➔ Z for 8s ➔ Y for 3s).
   - **Random:** Procedurally randomizes orbit axes and timings within customizable bounds.
-- **🔍 Auto-Framing Director:** Automatically reframes your scene at regular intervals. Focuses either on selected items or the entire model with fully smooth zoom/pan curves.
-- **⚡ Standalone Script Included:** Includes a lightweight, single-file version (`viewport_orbit_standalone.py`) that can be executed directly inside Blender's Text Editor.
+  - **Oscillation:** Rotate back and forth within a specific angle range instead of a full rotation.
+- **🔍 Auto-Framing Director:** Automatically reframes your scene on a strict timer or reactively upon mesh editing/actions.
+  - **Frame Selection:** Focuses on selected items or the entire model with smooth zoom/pan curves. Optionally align the camera straight to face normals, lock an up-axis, and set a tilt angle.
+  - **Sync Source Viewport:** Copy the camera location and look angle from another source viewport for synchronized multi-camera setups.
 
 ---
 
@@ -27,7 +29,7 @@
 
 To install **Mac300 Viewport Orbit** in Blender:
 
-1. **Download the Release ZIP:** Navigate to the [Releases](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.2.0) page and download `mac300_3dView_Orbit.zip`.
+1. **Download the Release ZIP:** Navigate to the [Releases](https://github.com/mac300-debug/mac300_3dView_Orbit/releases/tag/v2.3.0) page and download `mac300_3dView_Orbit.zip`.
 2. **Open Blender Preferences:** Go to `Edit` ➔ `Preferences` ➔ `Get Extensions` (or `Add-ons` depending on Blender version).
 3. **Install from File:** Click the dropdown menu at the top right of the Preferences window, select **Install from Disk...**, choose the downloaded `.zip` file, and click **Install**.
 4. **Enable the Add-on:** Check the box next to `Mac300_Viewport_Orbit` if it isn't enabled automatically.
